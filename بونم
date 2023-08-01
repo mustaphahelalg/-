@@ -1,0 +1,168 @@
+<! DOCTYPE html>
+<html>
+<head>
+  <title> </title>
+  <ستايل>
+  html ، جسم {
+    الارتفاع: 100٪؛
+    الهامش: 0؛
+  }
+
+  جسم {
+    الخلفية: أسود ؛
+    العرض: فليكس ؛
+    محاذاة العناصر: مركز ؛
+    تبرير المحتوى: مركز ؛
+  }
+  اللوحة القماشية {
+    الحدود: 1 بكسل بيضاء صلبة ؛
+  }
+  </style>
+</head>
+<الجسم>
+<canvas width = "400" height = "400" id = "game"> </canvas>
+<script>
+var canvas = document.getElementById ('game') ؛
+سياق var = canvas.getContext ('2d') ؛
+
+شبكة فار = 16 ؛
+عدد فار = 0 ؛
+  
+ثعبان فار = {
+  س: 160 ،
+  ص: 160 ،
+  
+  // سرعة الثعبان. يتحرك طول شبكة كل إطار في الاتجاهين x أو y
+  dx: شبكة ،
+  دى: 0 ،
+  
+  // تتبع جميع الشبكات التي يحتلها جسم الثعبان
+  الخلايا: [] ،
+  
+  // طول الثعبان. ينمو عند تناول تفاحة
+  maxCells: 4
+} ؛
+فار التفاح = {
+  س: 320 ،
+  ص: 320
+} ؛
+
+// احصل على أعداد صحيحة عشوائية في نطاق معين
+// @ see https://stackoverflow.com/a/1527820/2124254
+دالة getRandomInt (min، max) {
+  إرجاع Math.floor (Math.random () * (max - min)) + min ؛
+}
+
+// حلقة اللعبة
+حلقة دالة () {
+  requestAnimationFrame (حلقة) ؛
+
+  // حلقة اللعبة البطيئة إلى 15 إطارًا في الثانية بدلاً من 60 (60/15 = 4)
+  إذا (عدد ++ <4) {
+    يعود؛
+  }
+
+  العد = 0 ؛
+  Context.clearRect (0،0، canvas.width، canvas.height) ؛
+
+  // حرك الثعبان بسرعته
+  snake.x + = snake.dx ؛
+  ثعبان ص + = ثعبان.
+
+  // لف موضع الثعبان أفقيًا على حافة الشاشة
+  إذا (snake.x <0) {
+    snake.x = canvas.width - الشبكة ؛
+  }
+  وإلا إذا (snake.x> = canvas.width) {
+    snake.x = 0 ؛
+  }
+  
+  // لف وضع الثعبان عموديًا على حافة الشاشة
+  إذا (snake.y <0) {
+    snake.y = canvas.height - شبكة ؛
+  }
+  وإلا إذا (snake.y> = canvas.height) {
+    ثعبان ص = 0 ؛
+  }
+
+  // تتبع مكان وجود الثعبان. الجزء الأمامي من المصفوفة هو الرأس دائمًا
+  snake.cells.unshift ({x: snake.x، y: snake.y}) ؛
+
+  // إزالة الخلايا ونحن نبتعد عنها
+  إذا (snake.cells.length> snake.maxCells) {
+    snake.cells.pop () ،
+  }
+
+  // ارسم تفاحة
+  Context.fillStyle = 'أحمر' ؛
+  Context.fillRect (apple.x، apple.y، grid-1، grid-1) ؛
+
+  // ارسم ثعبانًا خلية واحدة في كل مرة
+  Context.fillStyle = 'أخضر' ؛
+  snake.cells.forEach (الوظيفة (الخلية ، الفهرس) {
+    
+    // الرسم 1 بيكسل أصغر من الشبكة يخلق تأثير الشبكة في جسم الثعبان حتى تتمكن من رؤية طوله
+    Context.fillRect (cell.x ، cell.y ، grid-1 ، grid-1) ؛  
+
+    // أكل الثعبان التفاح
+    إذا (cell.x === apple.x && cell.y === apple.y) {
+      snake.maxCells ++ ؛
+
+      // قماش 400 × 400 وهو 25 × 25 شبكة
+      apple.x = getRandomInt (0، 25) * الشبكة ؛
+      apple.y = getRandomInt (0، 25) * الشبكة ؛
+    }
+
+    // تحقق من التصادم مع جميع الخلايا بعد هذا (فرز الفقاعة المعدل)
+    لـ (var i = index + 1 ؛ i <snake.cells.length ؛ i ++) {
+      
+      // ثعبان يحتل نفس مساحة جزء من الجسم. أعد اعداد اللعبة
+      إذا (cell.x === snake.cells [i] .x && cell.y === snake.cells [i] .y) {
+        snake.x = 160 ؛
+        ثعبان ص = 160 ؛
+        snake.cells = [] ،
+        snake.maxCells = 4 ؛
+        snake.dx = شبكة ؛
+        ثعبان = 0 ؛
+
+        apple.x = getRandomInt (0، 25) * الشبكة ؛
+        apple.y = getRandomInt (0، 25) * الشبكة ؛
+      }
+    }
+  }) ؛
+}
+
+// الاستماع إلى أحداث لوحة المفاتيح لتحريك الثعبان
+document.addEventListener ('keydown'، function (e) {
+  // منع الثعبان من التراجع عن نفسه عن طريق التحقق من أنه
+  // لا يتحرك بالفعل على نفس المحور (الضغط على اليسار أثناء الحركة
+  // لن يفعل أي شيء ، والضغط على اليمين أثناء التحرك إلى اليسار
+  // لا تسمح لك بالتصادم مع جسدك)
+  
+  // مفتاح السهم الأيسر
+  إذا (e.which === 37 && snake.dx === 0) {
+    snake.dx = -شبكة ؛
+    ثعبان = 0 ؛
+  }
+  // لأعلى مفتاح السهم
+  وإلا إذا (e.which === 38 && snake.dy === 0) {
+    snake.dy = -شبكة ؛
+    snake.dx = 0 ؛
+  }
+  // مفتاح السهم الأيمن
+  وإلا إذا (e.which === 39 && snake.dx === 0) {
+    snake.dx = شبكة ؛
+    ثعبان = 0 ؛
+  }
+  // مفتاح السهم لأسفل
+  else if (e.which === 40 && snake.dy === 0) {
+    snake.dy = شبكة ؛
+    snake.dx = 0 ؛
+  }
+}) ؛
+
+// ابدأ اللعبة
+requestAnimationFrame (حلقة) ؛
+</script>
+</body>
+</html>
